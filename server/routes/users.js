@@ -1,7 +1,8 @@
 const express = require("express");
 const { query, validationResult } = require("express-validator");
 const { asyncHandler } = require("../middleware/errorHandler");
-const { authenticateToken, requireOwnership } = require("../middleware/auth");
+const { auth } = require("../middleware/auth");
+console.log("Type of auth in users.js:", typeof auth);
 const User = require("../models/User");
 const Swap = require("../models/Swap");
 const Session = require("../models/Session");
@@ -67,7 +68,7 @@ router.get(
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const users = await User.find(query)
-      .select("-email -supabaseId -isBanned -banReason -preferences")
+      .select("-email -isBanned -banReason -preferences")
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
@@ -91,7 +92,7 @@ router.get(
   "/:id",
   asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id).select(
-      "-email -supabaseId -isBanned -banReason -preferences"
+      "-email -isBanned -banReason -preferences"
     );
 
     if (!user) {
@@ -109,7 +110,7 @@ router.get(
 // Get current user's profile
 router.get(
   "/me/profile",
-  authenticateToken,
+  auth,
   asyncHandler(async (req, res) => {
     res.json({ user: req.user });
   })
@@ -118,7 +119,7 @@ router.get(
 // Update current user's profile
 router.put(
   "/me/profile",
-  authenticateToken,
+  auth,
   asyncHandler(async (req, res) => {
     const {
       name,
@@ -153,7 +154,7 @@ router.put(
 // Get user's swap history
 router.get(
   "/me/swaps",
-  authenticateToken,
+  auth,
   asyncHandler(async (req, res) => {
     const { status, page = 1, limit = 20 } = req.query;
 
@@ -191,7 +192,7 @@ router.get(
 // Get user's session history
 router.get(
   "/me/sessions",
-  authenticateToken,
+  auth,
   asyncHandler(async (req, res) => {
     const { status, page = 1, limit = 20 } = req.query;
 
@@ -230,7 +231,7 @@ router.get(
 // Get user's feedback/reviews
 router.get(
   "/me/feedback",
-  authenticateToken,
+  auth,
   asyncHandler(async (req, res) => {
     const { page = 1, limit = 20 } = req.query;
 
@@ -260,7 +261,7 @@ router.get(
 // Get user's statistics
 router.get(
   "/me/stats",
-  authenticateToken,
+  auth,
   asyncHandler(async (req, res) => {
     const userId = req.user._id;
 
@@ -344,7 +345,7 @@ router.get(
   "/:id/public",
   asyncHandler(async (req, res) => {
     const user = await User.findById(req.params.id).select(
-      "-email -supabaseId -isBanned -banReason -preferences"
+      "-email -isBanned -banReason -preferences"
     );
 
     if (!user || !user.isActive || user.isBanned) {

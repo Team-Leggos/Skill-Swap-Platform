@@ -55,7 +55,6 @@ router.get(
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const users = await User.find(query)
-      .select("-supabaseId")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(parseInt(limit));

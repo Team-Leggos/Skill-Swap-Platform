@@ -16,7 +16,7 @@ const feedbackRoutes = require("./routes/feedback");
 const adminRoutes = require("./routes/admin");
 const aiRoutes = require("./routes/ai");
 
-const { authenticateToken, requireRole } = require("./middleware/auth");
+const { auth, requireRole } = require("./middleware/auth");
 const { errorHandler } = require("./middleware/errorHandler");
 
 const app = express();
@@ -70,7 +70,7 @@ app.use("/api/swaps", swapRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/feedback", feedbackRoutes);
-app.use("/api/admin", authenticateToken, requireRole("admin"), adminRoutes);
+app.use("/api/admin", auth, requireRole("admin"), adminRoutes);
 app.use("/api/ai", aiRoutes);
 
 // Health check endpoint
